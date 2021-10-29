@@ -2,19 +2,19 @@ package example
 
 import example.ExampleApp.{Greet, Greeting}
 import framework.Green
-import framework.compose.Common.{Error, Lambda, guard, lambda}
+import framework.lambda.Common.{Error, Lambda, guard, lambda}
 import framework.encoding.{Codec, JsonCodec}
 import framework.http.Common.{View, api}
 import framework.http.Routing
 import framework.http.Views.Json
-import framework.module.HttpModule
+import framework.module.RestModule
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.http.HttpServerOptions
 import org.json4s.DefaultFormats
 
 object ComposeExample extends App {
 
-	class ComposingModule extends HttpModule {
+	class ComposingModule extends RestModule {
 		implicit val codec:Codec = JsonCodec(DefaultFormats)
 		implicit val lambdaErrorHandler:Throwable=>Error = { err => Error(err.getMessage) }
 		implicit val httpErrorHandler:Error=>View = { err =>
@@ -31,8 +31,7 @@ object ComposeExample extends App {
 		val createGreet:Lambda[Greet, String] = guard(it => s"Hello ${it.name}!")
 		val createGreeting:Lambda[String, Greeting] = guard(it => Greeting(it))
 		val createGreetingView:Lambda[Greeting, View] = guard(it => {
-			val json = codec.encode(it)
-			Json(json)
+			Json(it)
 		})
 		val greetingFlow:Lambda[Greet, View] = (greet:Greet) => createGreet(greet)
 			.flatMap(createGreeting)

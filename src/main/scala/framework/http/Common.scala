@@ -10,11 +10,16 @@ object Common {
 	trait View {
 		def code:Int
 		def contentType:String
-		def body:String
+		def render():String
+	}
+
+	trait Template {
+		def render():String
 	}
 
 	def handler(func:RoutingContext=>Unit):VertxHandler = func
 
+	// TODO introduce form[T](T=>View)?
 	def api[T](func:T=>View)(implicit codec:Codec, manifest: Manifest[T]):VertxHandler = handler(ctx => {
 		val body = ctx.getBodyAsString
 		val entity = codec.decode[T](body)
@@ -46,6 +51,6 @@ object Common {
 	protected def renderView(view:View, ctx:HttpServerResponse):Unit = {
 		ctx.setStatusCode(view.code)
 		ctx.putHeader("Content-Type", view.contentType)
-		ctx.end(view.body)
+		ctx.end(view.render())
 	}
 }

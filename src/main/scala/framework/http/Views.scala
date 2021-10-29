@@ -1,8 +1,13 @@
 package framework.http
 
-import framework.http.Common.View
+import framework.encoding.Codec
+import framework.http.Common.{Template, View}
 
 object Views {
-	case class Html(body:String, code:Int = 200, contentType:String = "text/html") extends View
-	case class Json(body:String, code:Int = 200, contentType:String = "application/json") extends View
+	case class Html(body:Template, code:Int = 200, contentType:String = "text/html") extends View {
+		override def render(): String = body.render()
+	}
+	case class Json(body:AnyRef, code:Int = 200, contentType:String = "application/json")(implicit codec: Codec) extends View {
+		override def render(): String = codec.encode(body)
+	}
 }

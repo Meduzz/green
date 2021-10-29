@@ -1,4 +1,4 @@
-package framework.compose
+package framework.lambda
 
 import scala.util.{Try, Success => Yes, Failure => No}
 

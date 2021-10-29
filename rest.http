@@ -1,0 +1,12 @@
+GET /
+Host: localhost:8080
+
+####
+
+POST /api/
+Host: localhost:8080
+Content-Type: application/json
+
+{
+    "name":"world"
+}

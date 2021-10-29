@@ -16,6 +16,14 @@ object Green {
 	}
 }
 
+/*
+	TODO
+	Starting multiple modules that start a webserver that binds to the same port
+	makes the requests bounce between the started server, generating 404 whenever
+	hitting a server that did not define the path...
+
+	Huge disappointment!
+ */
 class Green(val vertx: Vertx) {
 	def withModule[T <: Module](module:Class[T], options:Option[DeploymentOptions] = None):Green = {
 		val opts = options.getOrElse(new DeploymentOptions())

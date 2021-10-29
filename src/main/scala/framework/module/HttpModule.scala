@@ -1,42 +1,40 @@
 package framework.module
 
-import framework.http.Routing
-import io.vertx.core.Promise
-import io.vertx.core.http.HttpServerOptions
-import io.vertx.ext.web.Router
+import io.vertx.core.{Handler, Promise, Vertx}
+import io.vertx.core.http.{HttpServerOptions, HttpServerRequest}
 
 trait HttpModule extends Module {
+  def options:Option[HttpServerOptions]
 
-	def options:Option[HttpServerOptions]
+  def defaultHandler:Handler[HttpServerRequest]
 
-	def routing(router:Routing):Unit
+  override def start(wtf:Promise[Void]):Unit = {
+    startServer(wtf, defaultHandler)
+  }
 
-	override def start(wtf:Promise[Void]):Unit = {
-		val router = Router.router(getVertx)
-		routing(new Routing(router))
+  protected def startServer(wtf:Promise[Void], handler:Handler[HttpServerRequest]):Unit = {
+    val server = options match {
+      case None => {
+        val server = getVertx.createHttpServer()
+        server.requestHandler(handler)
+        server.listen(8080)
+      }
+      case Some(opts) => {
+        val server = getVertx.createHttpServer(opts)
+        server.requestHandler(handler)
+        server.listen()
+      }
+    }
 
-		val server = options match {
-			case None => {
-				val server = getVertx.createHttpServer()
-				server.requestHandler(router)
-				server.listen(8080)
-  		}
-			case Some(opts) => {
-				val server = getVertx.createHttpServer(opts)
-				server.requestHandler(router)
-				server.listen()
-  		}
-		}
-
-		server.onComplete(result => {
-			if (result.failed()) {
-				wtf.fail(result.cause())
-				result.cause().printStackTrace()
-				getVertx.close()
-			} else {
-				wtf.complete()
-				println(s"${this.getClass.getSimpleName} started on port: ${result.result().actualPort()}.")
-			}
-		})
-	}
+    server.onComplete(result => {
+      if (result.failed()) {
+        wtf.fail(result.cause())
+        result.cause().printStackTrace()
+        getVertx.close()
+      } else {
+        wtf.complete()
+        println(s"${this.getClass.getSimpleName} started on port: ${result.result().actualPort()}.")
+      }
+    })
+  }
 }
