@@ -10,3 +10,13 @@ Content-Type: application/json
 {
     "name":"world"
 }
+
+###
+
+POST /greet
+Host: localhost:8080
+Content-Type: application/json
+
+{
+    "name":"world"
+}

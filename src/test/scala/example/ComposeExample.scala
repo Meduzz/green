@@ -1,6 +1,6 @@
 package example
 
-import example.ExampleApp.{Greet, Greeting}
+import example.ExampleApp.{ApiModule, Greet, Greeting}
 import framework.Green
 import framework.lambda.Common.{Error, Lambda, guard, lambda}
 import framework.encoding.{Codec, JsonCodec}
@@ -8,8 +8,9 @@ import framework.http.Common.{View, api}
 import framework.http.Routing
 import framework.http.Views.Json
 import framework.module.RestModule
-import io.vertx.core.DeploymentOptions
-import io.vertx.core.http.HttpServerOptions
+import framework.requirement.HttpBase
+import io.vertx.core.{DeploymentOptions, Handler}
+import io.vertx.core.http.{HttpServerOptions, HttpServerRequest}
 import org.json4s.DefaultFormats
 
 object ComposeExample extends App {
@@ -21,8 +22,6 @@ object ComposeExample extends App {
 			val json = codec.encode(err)
 			Json(json, code = 500)
 		}
-
-		override def options:Option[HttpServerOptions] = None
 
 		override def routing(router:Routing):Unit = {
 			router.post("/greet", api[Greet](lambda(greetingFlow)))
@@ -40,5 +39,13 @@ object ComposeExample extends App {
 			.flatMap(createGreetingView)
 	}
 
-	Green.withModule(classOf[ComposingModule], Some(new DeploymentOptions().setInstances(2)))
+	class MyServer extends HttpBase {
+		override def options:Option[HttpServerOptions] = None
+
+		override def defaultHandler(): Handler[HttpServerRequest] = {
+			routed(new ComposingModule)
+		}
+	}
+
+	Green.require(classOf[MyServer], Some(new DeploymentOptions().setInstances(2)))
 }
