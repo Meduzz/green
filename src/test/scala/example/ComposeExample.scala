@@ -2,7 +2,7 @@ package example
 
 import example.ExampleApp.{ApiModule, Greet, Greeting}
 import framework.Green
-import framework.lambda.Common.{Error, Lambda, guard, lambda}
+import framework.lambda.Common.{Error, Lambda, Result, guard, lambda}
 import framework.encoding.{Codec, JsonCodec}
 import framework.http.Common.{View, api}
 import framework.http.Routing
@@ -32,7 +32,8 @@ object ComposeExample extends App {
 		val createGreetingView:Lambda[Greeting, View] = guard(it => {
 			Json(it)
 		})
-		val greetingFlow:Lambda[Greet, View] = (greet:Greet) => createGreet(greet)
+		val greetingFlow:Lambda[Greet, View] = Result.from(_)
+			.flatMap(createGreet)
 			.flatMap(createGreeting)
 			.sideeffects(it => println(it.text))
 			.filter(it => it.text.length > 7)

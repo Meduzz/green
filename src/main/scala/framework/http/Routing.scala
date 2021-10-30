@@ -7,7 +7,7 @@ import io.vertx.ext.web.{Route, Router}
 import scala.collection.Seq
 import scala.util.{Failure, Success, Try}
 
-class Routing(router:Router) {
+class Routing(val router:Router) {
 
 	private val bodyHandler = BodyHandler.create(false)
 

@@ -105,6 +105,11 @@ object Common {
 		}
 	}
 
+	object Result {
+		def from[T](start:T):Result[T] = Success(start)
+		def error[T](msg:String, code:Option[String] = None):Result[T] = Failure(Error(msg, code))
+	}
+
 	case class Success[T](value:T) extends Result[T]
 	case class Failure[T](error:Error) extends Result[T]
 
