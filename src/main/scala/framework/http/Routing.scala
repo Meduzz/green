@@ -9,8 +9,6 @@ import scala.util.{Failure, Success, Try}
 
 class Routing(val router:Router) {
 
-	private val bodyHandler = BodyHandler.create(false)
-
 	def get(path:String, handlers:VertxHandler*):Unit = {
 		val route = router.get(path)
 		setupRoute(route, handlers)
@@ -18,14 +16,12 @@ class Routing(val router:Router) {
 
 	def post(path:String, handlers:VertxHandler*):Unit = {
 		val route = router.post(path)
-			.handler(bodyHandler.handle)
 
 		setupRoute(route, handlers)
 	}
 
 	def put(path:String, handlers:VertxHandler*):Unit = {
 		val route = router.put(path)
-			.handler(bodyHandler.handle)
 
 		setupRoute(route, handlers)
 	}
@@ -38,7 +34,6 @@ class Routing(val router:Router) {
 
 	def patch(path:String, handlers:VertxHandler*):Unit = {
 		val route = router.patch(path)
-  		.handler(bodyHandler.handle)
 
 		setupRoute(route, handlers)
 	}

@@ -5,6 +5,7 @@ import framework.module.RestModule
 import io.vertx.core.http.{HttpServerOptions, HttpServerRequest}
 import io.vertx.core.{Handler, Promise}
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.{BodyHandler, LoggerHandler}
 
 trait HttpBase extends Requirement {
   def options:Option[HttpServerOptions]
@@ -38,8 +39,17 @@ trait HttpBase extends Requirement {
     })
   }
 
-  protected def routed(modules:RestModule*):Handler[HttpServerRequest] = {
+  protected def routed(uploadFolder:Option[String], modules:RestModule*):Handler[HttpServerRequest] = {
+    val bodyHandler = uploadFolder
+      .map(BodyHandler.create)
+      .getOrElse(BodyHandler.create(false))
+
     val router = Router.router(getVertx)
+
+    router.route()
+      .handler(LoggerHandler.create())
+      .handler(bodyHandler)
+
     val routing = new Routing(router)
     modules.foreach(_.routing(routing))
     router

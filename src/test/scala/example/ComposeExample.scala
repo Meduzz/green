@@ -19,8 +19,7 @@ object ComposeExample extends App {
 		implicit val codec:Codec = JsonCodec(DefaultFormats)
 		implicit val lambdaErrorHandler:Throwable=>Error = { err => Error(err.getMessage) }
 		implicit val httpErrorHandler:Error=>View = { err =>
-			val json = codec.encode(err)
-			Json(json, code = 500)
+			Json(err, code = 500)
 		}
 
 		override def routing(router:Routing):Unit = {
@@ -44,7 +43,7 @@ object ComposeExample extends App {
 		override def options:Option[HttpServerOptions] = None
 
 		override def defaultHandler(): Handler[HttpServerRequest] = {
-			routed(new ComposingModule)
+			routed(None, new ComposingModule)
 		}
 	}
 
